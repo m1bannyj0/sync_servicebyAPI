@@ -19,21 +19,24 @@ if ($APPLICATION->GetGroupRight($module_id) < "S") {
 	$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED"));
 }
 
-$sSql = "SELECT
-   ID,
-   -- CREATED_DATE,
-   NAME
-   -- IS_LOCKED,
-   -- SORT
-FROM b_crm_deal_category
-  WHERE IS_LOCKED='N'";
-$connection = Bitrix\Main\Application::getConnection();
-$dealCatIterator = $connection->query($sSql);
-$ardealCat = array();
-while ($siblingsElement = $dealCatIterator->fetch()) {
-	$ardealCat[$siblingsElement['ID']] = $siblingsElement['NAME'];
-}
-$enumIDCat = array_keys($ardealCat);
+		$ardealCat = array();
+		$dealCatIterator = \Bitrix\Crm\Category\Entity\DealCategoryTable::query()
+                // ->addSelect('CATEGORY_ID')	b_crm_deal_category
+				// ->setSelect(["*","UF_*"])
+				->setSelect(["ID","NAME"])
+				->setFilter([
+					// 'ID'=>116371,
+					// "!$sPropSF" => ""
+					// "!$sPropSF"=>''
+					])
+                ->where("IS_LOCKED", "N")
+                // ->setLimit(1)
+                ->exec()
+                ->fetchAll();
+		foreach($dealCatIterator as $siblingsElement){
+				$ardealCat[$siblingsElement['ID']] = $siblingsElement['NAME'];
+			}
+		$enumIDCat = array_keys($ardealCat);
 
 $arDealStatuses['KEY'] = array_keys($arDealStatus);
 $arDealStatuses['VALUE'] = array_values($arDealStatus);
